@@ -66,13 +66,13 @@ async def main(device:InputDevice, player:SoCo):
         sonos_actions(player,cardId)
 
 def sonos_actions(player:SoCo, cardId:str):
-        playlist = player.get_sonos_playlist_by_attr('name', cardId)
+        playlist = player.get_sonos_playlist_by_attr('title', cardId)
         if playlist != None:
-            player.unjoin()
             player.stop()
+            player.unjoin()
             player.clear_queue()
             player.add_to_queue(playlist)
-            player.play()
+            player.play_from_queue(0)
 
 if __name__ == '__main__':
     parser = ArgumentParser()

@@ -1,0 +1,13 @@
+[Unit]
+Description=SoCo Box Service
+After=network.target iptables.service firewalld.service
+
+[Service]
+User=pi
+Group=pi
+Restart=always
+WorkingDirectory=/home/pi/socobox
+ExecStart=/home/pi/socobox/socobox_daemon.py
+
+[Install]
+WantedBy=multi-user.target

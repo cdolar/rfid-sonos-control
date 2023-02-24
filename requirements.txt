@@ -3,4 +3,6 @@ xmltodict
 ifaddr
 appdirs
 lxml
-
+gpiozero
+evdev
+soco

@@ -9,6 +9,7 @@ from re import compile
 from argparse import ArgumentParser
 from evdev import InputDevice, list_devices, ecodes
 from soco import SoCo, discover
+from gpiozero import Button
 
 def find_player(player_name: str) -> SoCo:
     sonos = None
@@ -61,18 +62,45 @@ async def scan_card(device:InputDevice) -> str:
                 code += keycode_regex.findall(keycode)[0]
 
 async def main(device:InputDevice, player:SoCo):
+    # Setting up GPIO
+    #vol_up_btn = Button(16, hold_time=0.1)
+    #vol_up_btn.when_pressed = lambda: sonos_action_volume_up(player)
+    #vol_down_btn = Button(19, hold_time=0.1)
+    #vol_down_btn.when_pressed = lambda: sonos_action_volume_down(player)
+    nxt_btn = Button(16, hold_time=0.1)
+    nxt_btn.when_pressed = lambda: sonos_action_next(player)
+    prev_btn = Button(19, hold_time=0.1)
+    prev_btn.when_pressed = lambda: sonos_action_previous(player)
+    restart_btn = Button(21, hold_time=0.1)
+    restart_btn.when_pressed = lambda: sonos_action_restart(player)
+    # Card reader
     async for cardId in scan_card(device):
         logging.info(f'Received card ID {cardId}')
-        sonos_actions(player,cardId)
+        sonos_action_playback(player,cardId)
 
-def sonos_actions(player:SoCo, cardId:str):
-        playlist = player.get_sonos_playlist_by_attr('title', cardId)
-        if playlist != None:
-            player.stop()
-            player.unjoin()
-            player.clear_queue()
-            player.add_to_queue(playlist)
-            player.play_from_queue(0)
+def sonos_action_playback(player:SoCo, cardId:str):
+    playlist = player.get_sonos_playlist_by_attr('title', cardId)
+    if playlist != None:
+        player.stop()
+        player.unjoin()
+        player.clear_queue()
+        player.add_to_queue(playlist)
+        player.play_from_queue(0)
+
+def sonos_action_volume_up(player:SoCo, volume_inc:int = 5):
+    player.volume += volume_inc
+
+def sonos_action_volume_down(player:SoCo, volume_dec:int = 5):
+    player.volume -= volume_dec
+
+def sonos_action_next(player:SoCo):
+    player.next()
+
+def sonos_action_previous(player:SoCo):
+    player.previous()
+
+def sonos_action_restart(player:SoCo):
+    player.play_from_queue(0)
 
 if __name__ == '__main__':
     parser = ArgumentParser()

@@ -7,7 +7,7 @@ User=pi
 Group=pi
 Restart=always
 WorkingDirectory=/home/pi/socobox
-ExecStart=/home/pi/socobox/socobox_daemon.py
+ExecStart=python3 socobox_daemon.py -v -f config.json
 
 [Install]
 WantedBy=multi-user.target
